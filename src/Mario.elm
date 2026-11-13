@@ -32,6 +32,7 @@ initialState =
   , vy = 0
   , dir = Right
   , trace = []
+  , jumps = 0
   }
 
 type XDirection = Left | Right
@@ -57,6 +58,9 @@ view computer mario =
     , marioSpriteName mario
         |> image 70 70
         |> move mario.x (b + 76 + mario.y)
+    , words black ("Jumps: " ++ String.fromInt mario.jumps)
+        |> scale 2
+        |> moveY (computer.screen.top - 40)
     ]
 
 marioSpriteName mario =
@@ -96,12 +100,14 @@ update computer mario =
 
     newX = mario.x + dt * vx
     newY = max 0 (mario.y + dt * vy)
+    startJump = mario.y == 0 && computer.keyboard.up
   in
     { mario
       | x = newX
       , y = newY
       , vx = vx
       , vy = (newY - mario.y) / dt
+      , jumps = if startJump then mario.jumps + 1 else mario.jumps
       , dir =
           if (toX computer.keyboard) < 0 then
             Left
